@@ -183,28 +183,33 @@ def mostrar_comentarios_t1(clickData):
 )
 
 
+
+
 def actualizar_dashboard(bloque_seleccionado, clickData):
     df_bloque = df_exploded[df_exploded["Bloque"] == bloque_seleccionado]
     df_bloque_counts = df_bloque.groupby("Categoria").size().reset_index(name="Recuento")
-    
-    # Crear etiquetas con salto de línea si tienen más de 12 caracteres
+
+    def dividir_en_renglones(texto, palabras_por_linea=2):
+        palabras = texto.split()
+        renglones = [
+            " ".join(palabras[i:i + palabras_por_linea])
+            for i in range(0, len(palabras), palabras_por_linea)
+        ]
+        return "<br>".join(renglones)
+
     tickvals = df_bloque_counts["Categoria"]
-    ticktext = [
-        cat if len(cat) <= 12 else cat[:12] + "<br>" + cat[12:]
-        for cat in tickvals
-    ]
-    
+    ticktext = [dividir_en_renglones(cat) for cat in tickvals]
+
     fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", 
-                    title=f"Bloque: {bloque_seleccionado}", 
-                    color_discrete_sequence=["#8B0000"])
-    
-    # Reemplazar etiquetas con saltos de línea
+                 title=f"Bloque: {bloque_seleccionado}", 
+                 color_discrete_sequence=["#8B0000"])
+
     fig.update_xaxes(
         tickmode='array',
         tickvals=tickvals,
         ticktext=ticktext
     )
-    
+
     fig.update_layout(
         xaxis_tickangle=0,
         xaxis_tickfont=dict(size=12),
@@ -212,6 +217,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
         height=700,
         width=1000
     )
+
     
     fig.write_html(f"grafico_{bloque_seleccionado}.html")
    
