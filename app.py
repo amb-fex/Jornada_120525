@@ -1,138 +1,128 @@
 import pandas as pd
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
+# === DATOS ASISTENTES ===
+df_asist = pd.read_excel("Asistentes.xlsx", engine="openpyxl")
+df_asist.columns = df_asist.columns.str.strip().str.lower().str.replace(' ', '_')
+df_asist['genero'] = df_asist['genero'].replace({'h': 'hombre', 'm': 'mujer', '': 'no especificado', None: 'no especificado'}).fillna('no especificado')
 
-# Cargar el archivo Excel (asegúrate de que esté en la misma carpeta del notebook)
-df = pd.read_excel("Asistentes.xlsx", engine="openpyxl")
+# Dona género
+genero_counts = df_asist['genero'].value_counts().reset_index()
+genero_counts.columns = ['genero', 'cuenta']
+fig_dona = px.pie(genero_counts, names='genero', values='cuenta', hole=0.4, color_discrete_sequence=['#F9E79F', '#D5F5E3', '#E8DAEF'])
+fig_dona.update_traces(textinfo='percent+label')
+fig_dona.update_layout(title="Distribución por género", title_x=0.5)
 
-# Mostrar las primeras filas
-df.head()
+# Entidad - figurines
+df_asist['entidad'] = df_asist['entidad'].astype(str).str.strip()
+entidades = df_asist['entidad'].value_counts().reset_index()
+entidades.columns = ['entidad', 'cuenta']
 
-# Quitar espacios en los nombres de columnas
-df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
-
-# Ver columnas limpias
-print(df.columns)
-
-import matplotlib.pyplot as plt
-df['genero'] = df['genero'].replace({
-    'h': 'hombre',
-    'm': 'mujer',
-    '': 'no especificado',
-    None: 'no especificado'
-})
-# Rellenar NaNs como 'no especificado'
-df['genero'] = df['genero'].fillna('no especificado')
-
-# Conteo por género
-genero_counts = df['genero'].value_counts()
-
-# Colores suaves (pasteles)
-colores = [ '#F9E79F', '#D5F5E3', '#E8DAEF']  # rosa pastel, azul, amarillo, verde, lavanda
-
-# Crear gráfico de dona
-fig, ax = plt.subplots()
-ax.pie(
-    genero_counts, 
-    labels=genero_counts.index, 
-    autopct='%1.1f%%', 
-    startangle=90,
-    colors=colores,
-    wedgeprops={'width': 0.4, 'edgecolor': 'white'}  # para hacer el hueco central (dona)
+fig_entidades = go.Figure()
+for _, row in entidades.iterrows():
+    texto = "👤" * row["cuenta"]
+    fig_entidades.add_trace(go.Scatter(
+        x=[0], y=[row["entidad"]], mode="text",
+        text=[texto], textposition="middle left",
+        textfont=dict(size=20), showlegend=False, hoverinfo="skip"
+    ))
+fig_entidades.update_layout(
+    title="Número de personas por entidad (👤 = 1 persona)",
+    title_x=0.5,
+    xaxis=dict(visible=False),
+    yaxis=dict(tickfont=dict(size=14), automargin=True),
+    width=700,
+    height=600,
+    margin=dict(l=80, r=40, t=50, b=50)
 )
-ax.set_title('Distribución por género', fontsize=14)
-plt.axis('equal')  # Circulo perfecto
-plt.tight_layout()
-plt.show()
-plt.savefig("Porcentaje_genero.png", dpi=300)
 
-# Normalizar nombres de entidad
-df['entidad'] = df['entidad'].astype(str).str.strip()
+# === DATOS TALLER 1 ===
+df_t1 = pd.read_excel("Taller1.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
+df_t1.columns = df_t1.iloc[1]
+df_t1 = df_t1[2:]
+df_t1 = df_t1.rename(columns={"Texto": "Texto", "Bloque": "Bloque"})
+df_t1_valid = df_t1[["Texto", "Bloque"]].dropna()
+df_t1_counts = df_t1_valid.groupby("Bloque").size().reset_index(name="Recuento")
 
-# Contar número de personas por entidad
-resumen_entidad = df['entidad'].value_counts().reset_index()
-resumen_entidad.columns = ['entidad', 'numero_personas']
-
-# Crear gráfico "estilo personas"
-plt.figure(figsize=(11, 6))
-for i, (entidad, cantidad) in enumerate(zip(resumen_entidad['entidad'], resumen_entidad['numero_personas'])):
-    personas = "👤" * cantidad  # Repetir ícono por número de personas
-    plt.text(0, i, personas, fontsize=22, va='center', color='purple', fontname='Segoe UI Emoji')
-
-# Ajustes visuales
-
-# Quitar bordes y líneas del gráfico
-ax = plt.gca()
-for spine in ax.spines.values():
-    spine.set_visible(False)  # Ocultar todos los bordes
-ax.tick_params(left=False, bottom=False)  # Quitar marcas de los ejes
-
-
-plt.yticks(range(len(resumen_entidad)), resumen_entidad['entidad'])
-plt.xticks([])  # Sin eje x
-#plt.title('Número de personas por entidad (👤 = 1 persona)', fontsize=14)ç
-plt.title('Número de personas por entidad', fontsize=14, loc='left',  pad=20)
-#plt.xlabel('Número de personas')
-#plt.gca().invert_yaxis()  # Entidades de arriba hacia abajo
-plt.xlim(0, 3)  # Límite horizontal acorde al máximo de personas
-plt.tight_layout()
-plt.show()
-
-
-
-# Cargar hoja
-df = pd.read_excel("Taller2.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
-
-# Usar fila 2 como cabecera real
-df.columns = df.iloc[1]
-df = df[2:]  # Eliminar encabezado viejo
-
-# Renombrar columnas útiles
-df = df.rename(columns={
-    "Texto": "Texto",
-    "Bloque": "Bloque",
-    "categoria": "Categoria"
-})
-
-# Filtrar filas válidas
-df_valid = df[["Texto", "Bloque", "Categoria"]].dropna()
-
-# Separar múltiples categorías por ;
+# === DATOS TALLER 2 ===
+df2 = pd.read_excel("Taller2.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
+df2.columns = df2.iloc[1]
+df2 = df2[2:]
+df2 = df2.rename(columns={"Texto": "Texto", "Bloque": "Bloque", "categoria": "Categoria"})
+df_valid = df2[["Texto", "Bloque", "Categoria"]].dropna()
 df_exploded = df_valid.assign(Categoria=df_valid["Categoria"].str.split(";")).explode("Categoria")
 df_exploded["Categoria"] = df_exploded["Categoria"].str.strip()
+bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
 
-# Función para dividir texto largo en 2 líneas
 def dividir_en_dos_lineas(texto, umbral=40):
-    if not isinstance(texto, str):
-        return texto
-    if len(texto) <= umbral:
-        return texto
+    if not isinstance(texto, str): return texto
+    if len(texto) <= umbral: return texto
     palabras = texto.split()
     mitad = len(palabras) // 2
     return " ".join(palabras[:mitad]) + "<br>" + " ".join(palabras[mitad:])
 
-# Inicializar app
+# === APP DASH ===
 app = Dash(__name__)
-bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
-
 app.layout = html.Div([
-    html.H2("TALLER 2 Aportes por Categoría y Bloque", style={"textAlign": "center"}),
+    html.H1("Jornada Workshop: “Digitalización del entorno construido: estandarización y aplicaciones prácticas de integración BIM-GIS”", style={"textAlign": "center", "fontSize": "20px", "marginBottom": "30px"}),
 
-    html.Div([
-        html.Label("Selecciona un bloque:"),
-        dcc.Dropdown(
-            id="selector-bloque",
-            options=[{"label": b, "value": b} for b in bloques_disponibles],
-            value=bloques_disponibles[0]
-        )
-    ], style={"width": "50%", "margin": "0 auto", "textAlign": "center"}),
-
-    dcc.Graph(id="grafico"),
-    html.Div(id="comentarios", style={"marginTop": "20px", "textAlign": "center"})
+    dcc.Tabs([
+        dcc.Tab(label="Distribución por Género", children=[
+            dcc.Graph(figure=fig_dona)
+        ]),
+        dcc.Tab(label="Personas por Entidad", children=[
+            dcc.Graph(figure=fig_entidades)
+        ]),
+        dcc.Tab(label="TALLER 1 - Aportes por Bloque", children=[
+            html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
+            dcc.Graph(id="grafico-t1"),
+            html.Div(id="comentarios-t1", style={"marginTop": "20px", "textAlign": "center"})
+        ]),
+        dcc.Tab(label="TALLER 2 - Categorías por Bloque", children=[
+            html.H2("TALLER 2 Aportes por Categoría y Bloque", style={"textAlign": "center"}),
+            html.Div([
+                html.Label("Selecciona un bloque:"),
+                dcc.Dropdown(
+                    id="selector-bloque",
+                    options=[{"label": b, "value": b} for b in bloques_disponibles],
+                    value=bloques_disponibles[0]
+                )
+            ], style={"width": "50%", "margin": "0 auto", "textAlign": "center"}),
+            dcc.Graph(id="grafico"),
+            html.Div(id="comentarios", style={"marginTop": "20px", "textAlign": "center"})
+        ])
+    ])
 ])
 
+# === CALLBACK TALLER 1 ===
+@app.callback(
+    Output("grafico-t1", "figure"),
+    Output("comentarios-t1", "children"),
+    Input("grafico-t1", "clickData")
+)
+def mostrar_comentarios_t1(clickData):
+    fig = px.bar(df_t1_counts, x="Bloque", y="Recuento", title="Notas por Bloque", color_discrete_sequence=["#003366"])
+    fig.update_layout(
+        xaxis_tickangle=0,
+        xaxis_tickfont=dict(size=14),
+        margin=dict(b=180),
+        height=700,
+        title_x=0.5
+    )
+    fig.update_xaxes(tickmode='array', tickvals=df_t1_counts["Bloque"], ticktext=df_t1_counts["Bloque"])
+    comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
+    if clickData:
+        bloque = clickData["points"][0]["x"]
+        comentarios = df_t1_valid[df_t1_valid["Bloque"] == bloque]["Texto"].dropna().unique().tolist()
+        comentarios_div = html.Div([
+            html.H4(f"Comentarios para: {bloque}"),
+            html.Ul([html.Li(c) for c in comentarios])
+        ])
+    return fig, comentarios_div
+
+# === CALLBACK TALLER 2 ===
 @app.callback(
     Output("grafico", "figure"),
     Output("comentarios", "children"),
@@ -142,22 +132,25 @@ app.layout = html.Div([
 def actualizar_dashboard(bloque_seleccionado, clickData):
     df_bloque = df_exploded[df_exploded["Bloque"] == bloque_seleccionado]
     df_bloque_counts = df_bloque.groupby("Categoria").size().reset_index(name="Recuento")
-
-    fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", title=f"Bloque: {bloque_seleccionado}", color_discrete_sequence=["#8B0000"] )
-    fig.write_html(f"grafico_{bloque_seleccionado}.html")
-
+    if len(df_bloque_counts) == 1:
+        df_bloque_counts["width"] = 0.3
+    else:
+        df_bloque_counts["width"] = None
+    fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", title=f"Bloque: {bloque_seleccionado}", color_discrete_sequence=["#8B0000"])
+    if "width" in df_bloque_counts.columns and df_bloque_counts["width"].notna().any():
+        fig.update_traces(width=df_bloque_counts["width"].tolist())
     fig.update_layout(
         xaxis_tickangle=0,
         xaxis_tickfont=dict(size=14),
         margin=dict(b=180),
         height=700,
+        title_x=0.5
     )
     fig.update_xaxes(
         tickmode='array',
         tickvals=df_bloque_counts["Categoria"],
         ticktext=[dividir_en_dos_lineas(cat) for cat in df_bloque_counts["Categoria"]]
     )
-
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
     if clickData:
         categoria = clickData["points"][0]["x"]
@@ -166,10 +159,10 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
             html.H4(f"Comentarios para: {categoria}"),
             html.Ul([html.Li(c) for c in comentarios])
         ])
-
     return fig, comentarios_div
 
-# ✅ Ejecutar la app solo si es archivo principal
+# === RUN APP ===
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=10000)
+
 
