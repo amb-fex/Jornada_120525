@@ -1,6 +1,6 @@
-if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=10000)
 import pandas as pd
+from dash import Dash, dcc, html, Input, Output
+import plotly.express as px
 
 # Cargar hoja
 df = pd.read_excel("Taller2.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
@@ -23,14 +23,19 @@ df_valid = df[["Texto", "Bloque", "Categoria"]].dropna()
 df_exploded = df_valid.assign(Categoria=df_valid["Categoria"].str.split(";")).explode("Categoria")
 df_exploded["Categoria"] = df_exploded["Categoria"].str.strip()
 
-from dash import Dash, dcc, html, Input, Output
-import plotly.express as px
-
-# Crear lista de bloques únicos
-bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
+# Función para dividir texto largo en 2 líneas
+def dividir_en_dos_lineas(texto, umbral=40):
+    if not isinstance(texto, str):
+        return texto
+    if len(texto) <= umbral:
+        return texto
+    palabras = texto.split()
+    mitad = len(palabras) // 2
+    return " ".join(palabras[:mitad]) + "<br>" + " ".join(palabras[mitad:])
 
 # Inicializar app
 app = Dash(__name__)
+bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
 
 app.layout = html.Div([
     html.H2("Análisis por Categoría", style={"textAlign": "center"}),
@@ -40,7 +45,7 @@ app.layout = html.Div([
         dcc.Dropdown(
             id="selector-bloque",
             options=[{"label": b, "value": b} for b in bloques_disponibles],
-            value=bloques_disponibles[0]  # valor por defecto
+            value=bloques_disponibles[0]
         )
     ], style={"width": "50%", "margin": "0 auto", "textAlign": "center"}),
 
@@ -59,25 +64,20 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
     df_bloque_counts = df_bloque.groupby("Categoria").size().reset_index(name="Recuento")
 
     fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", title=f"Bloque: {bloque_seleccionado}")
-    # Exportar gráfico como archivo HTML (se sobrescribe en cada cambio de bloque)
     fig.write_html(f"grafico_{bloque_seleccionado}.html")
 
     fig.update_layout(
-        xaxis_tickangle=0,  # Mantener horizontal
-        xaxis_tickfont=dict(size=14),  # Letra más grande
-        margin=dict(b=180),  # Más espacio abajo
-        height=700,          # Más alto si es necesario
+        xaxis_tickangle=0,
+        xaxis_tickfont=dict(size=14),
+        margin=dict(b=180),
+        height=700,
     )
-    
-    # Mostrar el texto completo sin cortar
     fig.update_xaxes(
         tickmode='array',
         tickvals=df_bloque_counts["Categoria"],
-        ticktext=df_bloque_counts["Categoria"]  # Sin saltos de línea
+        ticktext=[dividir_en_dos_lineas(cat) for cat in df_bloque_counts["Categoria"]]
     )
 
-
-    # Mostrar comentarios si hay click
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
     if clickData:
         categoria = clickData["points"][0]["x"]
@@ -89,7 +89,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
 
     return fig, comentarios_div
 
-# Ejecutar la app
-app.run(debug=True)
-# Exportar gráfico como archivo HTML (se sobrescribe en cada cambio de bloque)
+# ✅ Ejecutar la app solo si es archivo principal
+if __name__ == '__main__':
+    app.run(debug=False, host='0.0.0.0', port=10000)
 
