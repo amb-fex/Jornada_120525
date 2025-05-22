@@ -13,7 +13,7 @@ genero_counts = df_asist['genero'].value_counts().reset_index()
 genero_counts.columns = ['genero', 'cuenta']
 fig_dona = px.pie(genero_counts, names='genero', values='cuenta', hole=0.4, color_discrete_sequence=['#F9E79F', '#D5F5E3', '#E8DAEF'])
 fig_dona.update_traces(textinfo='percent+label')
-fig_dona.update_layout(title="Distribución por género", title_x=0.5)
+#fig_dona.update_layout(title="Distribución por género", title_x=0.5)
 
 # Entidad - figurines
 df_asist['entidad'] = df_asist['entidad'].astype(str).str.strip()
@@ -29,7 +29,7 @@ for _, row in entidades.iterrows():
         textfont=dict(size=20), showlegend=False, hoverinfo="skip"
     ))
 fig_entidades.update_layout(
-    title="Número de participantes por entidad (👤 = 1 persona)",
+    
     title_x=0.5,
     xaxis=dict(visible=False),
     yaxis=dict(tickfont=dict(size=14), automargin=True),
@@ -56,31 +56,55 @@ df_exploded = df_valid.assign(Categoria=df_valid["Categoria"].str.split(";")).ex
 df_exploded["Categoria"] = df_exploded["Categoria"].str.strip()
 bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
 
+fig_tipo_entidad = px.pie(
+    porcentaje,
+    names="Tipo",
+    values="Porcentaje",
+    title="Tipo de entidad (Pública vs Privada)",
+    hole=0.4,
+    color_discrete_sequence=["#1f77b4", "#ff7f0e"]
+)
+fig_tipo_entidad.update_traces(textinfo="percent+label")
+fig_tipo_entidad.update_layout(title_x=0.5)
+
 
 # === APP DASH ===
 app = Dash(__name__)
+
 app.layout = html.Div([
     html.H1("Jornada Workshop: “Digitalización del entorno construido: estandarización y aplicaciones prácticas de integración BIM-GIS”", style={"textAlign": "center", "fontSize": "20px", "marginBottom": "30px"}),
+    
+    footer_img2 = html.Img(src="/assets/Aportes_taller1_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
+    footer_img3 = html.Img(src="/assets/Aportes_taller2_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
 
+    
     dcc.Tabs([
         dcc.Tab(label="Datos de Asistentes", children=[
             html.Div([
                 html.Div([
                     html.H3("Distribución por género", style={"textAlign": "center"}),
                     dcc.Graph(figure=fig_dona)
-                ], style={"width": "48%", "display": "inline-block", "verticalAlign": "top"}),
+                ], style={"width": "32%", "display": "inline-block", "verticalAlign": "top"}),
         
                 html.Div([
                     html.H3("Participantes por entidad", style={"textAlign": "center"}),
                     dcc.Graph(figure=fig_entidades)
-                ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
-            ], style={"width": "100%", "textAlign": "center", "marginTop": "20px"})
+                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"}),
+        
+                html.Div([
+                    html.H3("Tipo de entidad", style={"textAlign": "center"}),
+                    dcc.Graph(figure=fig_tipo_entidad)
+                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+            ], style={"width": "100%", "textAlign": "center", "marginTop": "20px"}),
+        
+            
         ]),
 
         dcc.Tab(label="TALLER 1 - Aportes por Bloque", children=[
             html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
             dcc.Graph(id="grafico-t1"),
-            html.Div(id="comentarios-t1", style={"marginTop": "20px", "textAlign": "center"})
+            html.Div(id="comentarios-t1", style={"marginTop": "20px", "textAlign": "center"}),
+            footer_img2
         ]),
         dcc.Tab(label="TALLER 2 - Categorías por Bloque", children=[
             html.H2("TALLER 2 Aportes por Categoría y Bloque", style={"textAlign": "center"}),
@@ -93,7 +117,8 @@ app.layout = html.Div([
                 )
             ], style={"width": "50%", "margin": "0 auto", "textAlign": "center"}),
             dcc.Graph(id="grafico"),
-            html.Div(id="comentarios", style={"marginTop": "20px", "textAlign": "center"})
+            html.Div(id="comentarios", style={"marginTop": "20px", "textAlign": "center"}),
+            footer_img3
         ])
     ])
 ])
