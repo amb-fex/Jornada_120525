@@ -63,7 +63,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
     df_bloque = df_exploded[df_exploded["Bloque"] == bloque_seleccionado]
     df_bloque_counts = df_bloque.groupby("Categoria").size().reset_index(name="Recuento")
 
-    fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", title=f"Bloque: {bloque_seleccionado}")
+    fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", title=f"Bloque: {bloque_seleccionado}", color_discrete_sequence=["#8B0000"] )
     fig.write_html(f"grafico_{bloque_seleccionado}.html")
 
     fig.update_layout(
