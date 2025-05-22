@@ -67,6 +67,8 @@ fig_tipo_entidad = px.pie(
 fig_tipo_entidad.update_traces(textinfo="percent+label")
 fig_tipo_entidad.update_layout(title_x=0.5)
 
+footer_img2 = html.Img(src="/assets/Aportes_taller1_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
+footer_img3 = html.Img(src="/assets/Aportes_taller2_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
 
 # === APP DASH ===
 app = Dash(__name__)
@@ -74,8 +76,7 @@ app = Dash(__name__)
 app.layout = html.Div([
     html.H1("Jornada Workshop: “Digitalización del entorno construido: estandarización y aplicaciones prácticas de integración BIM-GIS”", style={"textAlign": "center", "fontSize": "20px", "marginBottom": "30px"}),
     
-    footer_img2 = html.Img(src="/assets/Aportes_taller1_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
-    footer_img3 = html.Img(src="/assets/Aportes_taller2_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
+
 
     
     dcc.Tabs([
@@ -101,25 +102,39 @@ app.layout = html.Div([
         ]),
 
         dcc.Tab(label="TALLER 1 - Aportes por Bloque", children=[
-            html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
-            dcc.Graph(id="grafico-t1"),
-            html.Div(id="comentarios-t1", style={"marginTop": "20px", "textAlign": "center"}),
-            footer_img2
-        ]),
-        dcc.Tab(label="TALLER 2 - Categorías por Bloque", children=[
-            html.H2("TALLER 2 Aportes por Categoría y Bloque", style={"textAlign": "center"}),
             html.Div([
-                html.Label("Selecciona un bloque:"),
-                dcc.Dropdown(
-                    id="selector-bloque",
-                    options=[{"label": b, "value": b} for b in bloques_disponibles],
-                    value=bloques_disponibles[0]
-                )
-            ], style={"width": "50%", "margin": "0 auto", "textAlign": "center"}),
-            dcc.Graph(id="grafico"),
-            html.Div(id="comentarios", style={"marginTop": "20px", "textAlign": "center"}),
-            footer_img3
-        ])
+                html.Div([
+                    html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
+                    dcc.Graph(id="grafico-t1"),
+                    html.Div(id="comentarios-t1", style={"marginTop": "20px", "textAlign": "center"})
+                ], style={"width": "66%", "display": "inline-block", "verticalAlign": "top"}),
+    
+                html.Div([
+                    footer_img2
+                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+            ], style={"width": "100%", "marginTop": "20px"})
+        ]),
+    
+        dcc.Tab(label="TALLER 2 - Categorías por Bloque", children=[
+            html.Div([
+                html.Div([
+                    html.H2("TALLER 2 Aportes por Categoría y Bloque", style={"textAlign": "center"}),
+                    html.Div([
+                        html.Label("Selecciona un bloque:"),
+                        dcc.Dropdown(
+                            id="selector-bloque",
+                            options=[{"label": b, "value": b} for b in bloques_disponibles],
+                            value=bloques_disponibles[0]
+                        )
+                    ], style={"width": "80%", "margin": "0 auto", "textAlign": "center"}),
+                    dcc.Graph(id="grafico"),
+                    html.Div(id="comentarios", style={"marginTop": "20px", "textAlign": "center"})
+                ], style={"width": "66%", "display": "inline-block", "verticalAlign": "top"}),
+    
+                html.Div([
+                    footer_img3
+                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+            ], style={"width": "100%", "marginTop": "20px"})
     ])
 ])
 
