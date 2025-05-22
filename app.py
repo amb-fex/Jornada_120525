@@ -150,19 +150,43 @@ app.layout = html.Div([
     Input("grafico-t1", "clickData")
 )
 def mostrar_comentarios_t1(clickData):
+    def dividir_en_renglones(texto, palabras_por_linea=2):
+        palabras = texto.split()
+        renglones = [
+            " ".join(palabras[i:i + palabras_por_linea])
+            for i in range(0, len(palabras), palabras_por_linea)
+        ]
+        return "<br>".join(renglones)
+
+    tickvals = df_t1_counts["Bloque"]
+    ticktext = [dividir_en_renglones(bloque) for bloque in tickvals]
+
     fig = px.bar(df_t1_counts, x="Bloque", y="Recuento", title="Notas por Bloque", color_discrete_sequence=["#003366"])
-    fig.update_layout(
-        xaxis_tickangle=-45,
-        xaxis_tickfont=dict(size=12),
-        margin=dict(b=180),
-        height=700,
-        width=1000,
-        title_x=0.5
+
+    fig.update_xaxes(
+        tickmode='array',
+        tickvals=tickvals,
+        ticktext=ticktext
     )
 
-    
-    fig.update_xaxes(tickmode='array')
+    # Ajustes dinámicos según el número de barras
+    if len(df_t1_counts) == 1:
+        fig.update_layout(
+            margin=dict(l=200, r=200),
+            width=500
+        )
+    else:
+        fig.update_layout(
+            margin=dict(b=180),
+            width=1000
+        )
 
+    fig.update_layout(
+        xaxis_tickangle=0,
+        xaxis_tickfont=dict(size=12),
+        height=700,
+        title_x=0.5
+    )
 
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
     if clickData:
@@ -173,6 +197,7 @@ def mostrar_comentarios_t1(clickData):
             html.Ul([html.Li(c) for c in comentarios])
         ])
     return fig, comentarios_div
+
 
 # === CALLBACK TALLER 2 ===
 @app.callback(
@@ -210,14 +235,17 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
         ticktext=ticktext
     )
 
+       # Ajuste específico si hay solo una barra
+    if len(df_bloque_counts) == 1:
+        fig.update_layout(margin=dict(l=200, r=200), width=500)
+    else:
+        fig.update_layout(margin=dict(b=100), width=1000)
+
     fig.update_layout(
         xaxis_tickangle=0,
         xaxis_tickfont=dict(size=12),
-        margin=dict(b=100),
-        height=700,
-        width=1000
+        height=700
     )
-
     
     fig.write_html(f"grafico_{bloque_seleccionado}.html")
    
