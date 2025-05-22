@@ -118,7 +118,7 @@ app = Dash(__name__)
 bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
 
 app.layout = html.Div([
-    html.H2("Análisis por Categoría", style={"textAlign": "center"}),
+    html.H2("TALLER 2 Aportes por Categoría y Bloque", style={"textAlign": "center"}),
 
     html.Div([
         html.Label("Selecciona un bloque:"),
