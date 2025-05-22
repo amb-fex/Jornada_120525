@@ -123,28 +123,31 @@ def mostrar_comentarios_t1(clickData):
     Input("selector-bloque", "value"),
     Input("grafico", "clickData")
 )
+@app.callback(
+    Output("grafico", "figure"),
+    Output("comentarios", "children"),
+    Input("selector-bloque", "value"),
+    Input("grafico", "clickData")
+)
 def actualizar_dashboard(bloque_seleccionado, clickData):
     df_bloque = df_exploded[df_exploded["Bloque"] == bloque_seleccionado]
     df_bloque_counts = df_bloque.groupby("Categoria").size().reset_index(name="Recuento")
-    if len(df_bloque_counts) == 1:
-        df_bloque_counts["width"] = 0.3
-    else:
-        df_bloque_counts["width"] = None
-    fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", title=f"Bloque: {bloque_seleccionado}", color_discrete_sequence=["#8B0000"])
-    if "width" in df_bloque_counts.columns and df_bloque_counts["width"].notna().any():
-        fig.update_traces(width=df_bloque_counts["width"].tolist())
+
+    fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", title=f"Bloque: {bloque_seleccionado}", color_discrete_sequence=["#8B0000"] )
+    fig.write_html(f"grafico_{bloque_seleccionado}.html")
+
     fig.update_layout(
         xaxis_tickangle=0,
         xaxis_tickfont=dict(size=14),
         margin=dict(b=180),
         height=700,
-        title_x=0.5
     )
     fig.update_xaxes(
         tickmode='array',
         tickvals=df_bloque_counts["Categoria"],
-         ticktext=[dividir_en_dos_lineas(cat) for cat in df_bloque_counts["Categoria"]]
+        ticktext=[dividir_en_dos_lineas(cat) for cat in df_bloque_counts["Categoria"]]
     )
+
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
     if clickData:
         categoria = clickData["points"][0]["x"]
@@ -153,6 +156,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
             html.H4(f"Comentarios para: {categoria}"),
             html.Ul([html.Li(c) for c in comentarios])
         ])
+
     return fig, comentarios_div
 
 # === RUN APP ===
