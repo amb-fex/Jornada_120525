@@ -152,7 +152,7 @@ app.layout = html.Div([
 def mostrar_comentarios_t1(clickData):
     fig = px.bar(df_t1_counts, x="Bloque", y="Recuento", title="Notas por Bloque", color_discrete_sequence=["#003366"])
     fig.update_layout(
-        xaxis_tickangle=0,
+        xaxis_tickangle=45,
         xaxis_tickfont=dict(size=12),
         margin=dict(b=180),
         height=700,
@@ -190,7 +190,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
     fig.write_html(f"grafico_{bloque_seleccionado}.html")
 
     fig.update_layout(
-        xaxis_tickangle=0,
+        xaxis_tickangle=45,
         xaxis_tickfont=dict(size=12),
         margin=dict(b=180),
         height=700,
