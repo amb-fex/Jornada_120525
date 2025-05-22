@@ -176,12 +176,7 @@ def mostrar_comentarios_t1(clickData):
     Input("selector-bloque", "value"),
     Input("grafico", "clickData")
 )
-@app.callback(
-    Output("grafico", "figure"),
-    Output("comentarios", "children"),
-    Input("selector-bloque", "value"),
-    Input("grafico", "clickData")
-)
+
 def actualizar_dashboard(bloque_seleccionado, clickData):
     df_bloque = df_exploded[df_exploded["Bloque"] == bloque_seleccionado]
     df_bloque_counts = df_bloque.groupby("Categoria").size().reset_index(name="Recuento")
@@ -199,7 +194,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
     fig.update_xaxes(
         tickmode='array',
         tickvals=df_bloque_counts["Categoria"],
-        ticktext=[dividir_en_dos_lineas(cat) for cat in df_bloque_counts["Categoria"]]
+        ticktext=df_bloque_counts["Categoria"]
     )
 
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
