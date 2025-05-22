@@ -161,7 +161,7 @@ def mostrar_comentarios_t1(clickData):
     )
 
     
-    fig.update_xaxes(tickmode='array', tickvals=df_t1_counts["Bloque"], ticktext=df_t1_counts["Bloque"], ticklabeloverflow="break")
+    fig.update_xaxes(tickmode='array', tickvals=df_t1_counts["Bloque"], ticktext=df_t1_counts["Bloque"])
 
 
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
@@ -194,14 +194,14 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
         xaxis_tickfont=dict(size=12),
         margin=dict(b=180),
         height=700,
-        width=1000
+        width=1200
         
     )
     fig.update_xaxes(
         tickmode='array',
         tickvals=df_bloque_counts["Categoria"],
-        ticktext=df_bloque_counts["Categoria"],
-        ticklabeloverflow="break"
+        ticktext=df_bloque_counts["Categoria"]
+        
     )
    
 
@@ -218,6 +218,6 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
 
 # === RUN APP ===
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=10000)
+    app.run(debug=False, host='0.0.0.0', port=1200)
 
 
