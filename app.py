@@ -161,7 +161,7 @@ def mostrar_comentarios_t1(clickData):
     )
 
     
-    fig.update_xaxes(tickmode='array', tickvals=df_t1_counts["Bloque"], ticktext=df_t1_counts["Bloque"])
+    fig.update_xaxes(tickmode='array')
 
 
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
@@ -198,9 +198,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
         
     )
     fig.update_xaxes(
-        tickmode='array',
-        tickvals=df_bloque_counts["Categoria"],
-        ticktext=df_bloque_counts["Categoria"]
+        tickmode='array'
         
     )
    
