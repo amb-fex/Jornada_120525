@@ -173,7 +173,7 @@ def mostrar_comentarios_t1(clickData):
     if len(df_t1_counts) == 1:
         fig.update_layout(
             margin=dict(l=200, r=200),
-            width=500
+            width=800
         )
     else:
         fig.update_layout(
@@ -237,7 +237,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
 
        # Ajuste específico si hay solo una barra
     if len(df_bloque_counts) == 1:
-        fig.update_layout(margin=dict(l=200, r=200), width=500)
+        fig.update_layout(margin=dict(l=200, r=200), width=800)
     else:
         fig.update_layout(margin=dict(b=100), width=1000)
 
