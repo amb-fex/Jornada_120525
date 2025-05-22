@@ -194,7 +194,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
         xaxis_tickfont=dict(size=12),
         margin=dict(b=180),
         height=700,
-        width=1200
+        width=1000
         
     )
     fig.update_xaxes(
