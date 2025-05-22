@@ -135,6 +135,7 @@ app.layout = html.Div([
                     footer_img3
                 ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
             ], style={"width": "100%", "marginTop": "20px"})
+        ]),
     ])
 ])
 
