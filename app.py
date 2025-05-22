@@ -29,11 +29,11 @@ for _, row in entidades.iterrows():
         textfont=dict(size=20), showlegend=False, hoverinfo="skip"
     ))
 fig_entidades.update_layout(
-    title="Número de personas por entidad (👤 = 1 persona)",
+    title="Número de participantes por entidad (👤 = 1 persona)",
     title_x=0.5,
     xaxis=dict(visible=False),
     yaxis=dict(tickfont=dict(size=14), automargin=True),
-    width=700,
+    width=400,
     height=600,
     margin=dict(l=80, r=40, t=50, b=50)
 )
@@ -63,12 +63,20 @@ app.layout = html.Div([
     html.H1("Jornada Workshop: “Digitalización del entorno construido: estandarización y aplicaciones prácticas de integración BIM-GIS”", style={"textAlign": "center", "fontSize": "20px", "marginBottom": "30px"}),
 
     dcc.Tabs([
-        dcc.Tab(label="Distribución por Género", children=[
-            dcc.Graph(figure=fig_dona)
-        ]),
-        dcc.Tab(label="Personas por Entidad", children=[
-            dcc.Graph(figure=fig_entidades)
-        ]),
+        dcc.Tab(label="Datos de Asistentes", children=[
+            html.Div([
+                html.Div([
+                    html.H3("Distribución por género", style={"textAlign": "center"}),
+                    dcc.Graph(figure=fig_dona)
+                ], style={"width": "48%", "display": "inline-block", "verticalAlign": "top"}),
+        
+                html.Div([
+                    html.H3("Participantes por entidad", style={"textAlign": "center"}),
+                    dcc.Graph(figure=fig_entidades)
+                ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
+            ], style={"width": "100%", "textAlign": "center", "marginTop": "20px"})
+        ])
+
         dcc.Tab(label="TALLER 1 - Aportes por Bloque", children=[
             html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
             dcc.Graph(id="grafico-t1"),
@@ -141,6 +149,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
         xaxis_tickfont=dict(size=14),
         margin=dict(b=180),
         height=700,
+        width=800
     )
     fig.update_xaxes(
         tickmode='array',
