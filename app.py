@@ -75,7 +75,7 @@ app.layout = html.Div([
                     dcc.Graph(figure=fig_entidades)
                 ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
             ], style={"width": "100%", "textAlign": "center", "marginTop": "20px"})
-        ])
+        ]),
 
         dcc.Tab(label="TALLER 1 - Aportes por Bloque", children=[
             html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
