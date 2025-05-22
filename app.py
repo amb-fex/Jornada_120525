@@ -56,6 +56,10 @@ df_exploded = df_valid.assign(Categoria=df_valid["Categoria"].str.split(";")).ex
 df_exploded["Categoria"] = df_exploded["Categoria"].str.strip()
 bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
 
+porcentaje = {
+    "Tipo": ["Pública", "Privada"],
+    "Porcentaje": [57.1, 42.9]
+}
 fig_tipo_entidad = px.pie(
     porcentaje,
     names="Tipo",
