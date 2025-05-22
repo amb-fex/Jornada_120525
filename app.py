@@ -149,7 +149,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
     fig.update_xaxes(
         tickmode='array',
         tickvals=df_bloque_counts["Categoria"],
-        ticktext=[dividir_en_dos_lineas(cat) for cat in df_bloque_counts["Categoria"]]
+         ticktext=[dividir_en_dos_lineas(cat) for cat in df_bloque_counts["Categoria"]]
     )
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
     if clickData:
