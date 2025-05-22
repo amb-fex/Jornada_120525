@@ -152,7 +152,7 @@ app.layout = html.Div([
 def mostrar_comentarios_t1(clickData):
     fig = px.bar(df_t1_counts, x="Bloque", y="Recuento", title="Notas por Bloque", color_discrete_sequence=["#003366"])
     fig.update_layout(
-        xaxis_tickangle=45,
+        xaxis_tickangle=-45,
         xaxis_tickfont=dict(size=12),
         margin=dict(b=180),
         height=700,
@@ -182,25 +182,38 @@ def mostrar_comentarios_t1(clickData):
     Input("grafico", "clickData")
 )
 
+
 def actualizar_dashboard(bloque_seleccionado, clickData):
-    df_bloque = df_exploded[df_exploded["Bloque"] == bloque_seleccionado]
-    df_bloque_counts = df_bloque.groupby("Categoria").size().reset_index(name="Recuento")
-
-    fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", title=f"Bloque: {bloque_seleccionado}", color_discrete_sequence=["#8B0000"] )
-    fig.write_html(f"grafico_{bloque_seleccionado}.html")
-
-    fig.update_layout(
-        xaxis_tickangle=45,
-        xaxis_tickfont=dict(size=12),
-        margin=dict(b=180),
-        height=700,
-        width=1000
-        
-    )
-    fig.update_xaxes(
-        tickmode='array'
-        
-    )
+        df_bloque = df_exploded[df_exploded["Bloque"] == bloque_seleccionado]
+        df_bloque_counts = df_bloque.groupby("Categoria").size().reset_index(name="Recuento")
+    
+        # Crear etiquetas con salto de línea si tienen más de 12 caracteres
+        tickvals = df_bloque_counts["Categoria"]
+        ticktext = [
+            cat if len(cat) <= 12 else cat[:12] + "<br>" + cat[12:]
+            for cat in tickvals
+        ]
+    
+        fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", 
+                     title=f"Bloque: {bloque_seleccionado}", 
+                     color_discrete_sequence=["#8B0000"])
+    
+        # Reemplazar etiquetas con saltos de línea
+        fig.update_xaxes(
+            tickmode='array',
+            tickvals=tickvals,
+            ticktext=ticktext
+        )
+    
+        fig.update_layout(
+            xaxis_tickangle=0,
+            xaxis_tickfont=dict(size=12),
+            margin=dict(b=100),
+            height=700,
+            width=1000
+        )
+    
+        fig.write_html(f"grafico_{bloque_seleccionado}.html")
    
 
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
