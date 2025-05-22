@@ -111,7 +111,7 @@ app.layout = html.Div([
                     html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
                     dcc.Graph(id="grafico-t1"),
                     html.Div(id="comentarios-t1", style={"marginTop": "20px", "textAlign": "center"})
-                ], style={"width": "80%", "display": "inline-block", "verticalAlign": "top"}),
+                ], style={"width": "78%", "display": "inline-block", "verticalAlign": "top"}),
     
                 html.Div([
                     footer_img2
@@ -133,7 +133,7 @@ app.layout = html.Div([
                     ], style={"width": "80%", "margin": "0 auto", "textAlign": "center"}),
                     dcc.Graph(id="grafico"),
                     html.Div(id="comentarios", style={"marginTop": "20px", "textAlign": "center"})
-                ], style={"width": "80%", "display": "inline-block", "verticalAlign": "top"}),
+                ], style={"width": "78%", "display": "inline-block", "verticalAlign": "top"}),
     
                 html.Div([
                     footer_img3
@@ -153,9 +153,10 @@ def mostrar_comentarios_t1(clickData):
     fig = px.bar(df_t1_counts, x="Bloque", y="Recuento", title="Notas por Bloque", color_discrete_sequence=["#003366"])
     fig.update_layout(
         xaxis_tickangle=0,
-        xaxis_tickfont=dict(size=14),
+        xaxis_tickfont=dict(size=12),
         margin=dict(b=180),
         height=700,
+        width=1000,
         title_x=0.5
     )
     fig.update_xaxes(tickmode='array', tickvals=df_t1_counts["Bloque"], ticktext=df_t1_counts["Bloque"])
@@ -186,10 +187,11 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
 
     fig.update_layout(
         xaxis_tickangle=0,
-        xaxis_tickfont=dict(size=14),
+        xaxis_tickfont=dict(size=12),
         margin=dict(b=180),
         height=700,
-        width=800
+        width=1000
+        
     )
     fig.update_xaxes(
         tickmode='array',
