@@ -56,12 +56,6 @@ df_exploded = df_valid.assign(Categoria=df_valid["Categoria"].str.split(";")).ex
 df_exploded["Categoria"] = df_exploded["Categoria"].str.strip()
 bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
 
-def dividir_en_dos_lineas(texto, umbral=40):
-    if not isinstance(texto, str): return texto
-    if len(texto) <= umbral: return texto
-    palabras = texto.split()
-    mitad = len(palabras) // 2
-    return " ".join(palabras[:mitad]) + "<br>" + " ".join(palabras[mitad:])
 
 # === APP DASH ===
 app = Dash(__name__)
