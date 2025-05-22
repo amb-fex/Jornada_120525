@@ -110,12 +110,12 @@ app.layout = html.Div([
                 html.Div([
                     html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
                     dcc.Graph(id="grafico-t1"),
-                    html.Div(id="comentarios-t1", style={"marginTop": "20px", "textAlign": "center"})
-                ], style={"width": "78%", "display": "inline-block", "verticalAlign": "top"}),
+                    html.Div(id="comentarios-t1", style={"marginTop": "5px", "textAlign": "center"})
+                ], style={"width": "66%", "display": "inline-block", "verticalAlign": "top"}),
     
                 html.Div([
                     footer_img2
-                ], style={"width": "20%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
             ], style={"width": "100%", "marginTop": "20px"})
         ]),
     
@@ -132,12 +132,12 @@ app.layout = html.Div([
                         )
                     ], style={"width": "80%", "margin": "0 auto", "textAlign": "center"}),
                     dcc.Graph(id="grafico"),
-                    html.Div(id="comentarios", style={"marginTop": "20px", "textAlign": "center"})
-                ], style={"width": "78%", "display": "inline-block", "verticalAlign": "top"}),
+                    html.Div(id="comentarios", style={"marginTop": "5px", "textAlign": "center"})
+                ], style={"width": "66%", "display": "inline-block", "verticalAlign": "top"}),
     
                 html.Div([
                     footer_img3
-                ], style={"width": "20%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
             ], style={"width": "100%", "marginTop": "20px"})
         ]),
     ])
@@ -159,7 +159,11 @@ def mostrar_comentarios_t1(clickData):
         width=1000,
         title_x=0.5
     )
-    fig.update_xaxes(tickmode='array', tickvals=df_t1_counts["Bloque"], ticktext=df_t1_counts["Bloque"])
+
+    
+    fig.update_xaxes(tickmode='array', tickvals=df_t1_counts["Bloque"], ticktext=df_t1_counts["Bloque"], ticklabeloverflow="break")
+
+
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
     if clickData:
         bloque = clickData["points"][0]["x"]
@@ -196,8 +200,10 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
     fig.update_xaxes(
         tickmode='array',
         tickvals=df_bloque_counts["Categoria"],
-        ticktext=df_bloque_counts["Categoria"]
+        ticktext=df_bloque_counts["Categoria"],
+        ticklabeloverflow="break"
     )
+   
 
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
     if clickData:
