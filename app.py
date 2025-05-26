@@ -69,9 +69,10 @@ fig_tipo_entidad.update_layout(title_x=0.5)
 provincia_counts = (
     df_asist["provincia"]
     .value_counts()
-    .reset_index()
-    .rename(columns={"index": "provincia", "provincia": "Asistentes"})
+    .reset_index(name="Asistentes")
+    .rename(columns={"index": "provincia"})
 )
+
 
 # Gráfico circular
 fig_pie_provincia = px.pie(
@@ -99,7 +100,7 @@ provincia_counts["provincia"] = provincia_counts["provincia"].replace({
 fig_mapa = px.choropleth(
     provincia_counts,
     geojson=geojson_provincias,
-    locations="Provincia",
+    locations="provincia",
     featureidkey="properties.name",
     color="Asistentes",
     color_continuous_scale="Blues",
