@@ -41,20 +41,21 @@ fig_entidades.update_layout(
 )
 
 
-# Calcular el porcentaje de cada tipo de entidad
 porcentaje = (
     df_asist["ambito"]
     .value_counts(normalize=True)
     .mul(100)
     .reset_index()
-    .rename(columns={"index": "Tipo", "Ambito": "Porcentaje"})
 )
+
+# Renombrar columnas 
+porcentaje.columns = ["ambito", "porcentaje"]
 
 # Crear el gráfico de pastel
 fig_tipo_entidad = px.pie(
     porcentaje,
-    names="Tipo",
-    values="Porcentaje",
+    names="ambito",
+    values="porcentaje",
     title="Tipo de entidad (Pública, Privada, Académica)",
     hole=0.4,
     color_discrete_sequence=["#1f77b4", "#ff7f0e", "#2ca02c"]  # Añadido color para 'Académica'
