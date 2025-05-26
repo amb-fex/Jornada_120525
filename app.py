@@ -2,6 +2,8 @@ import pandas as pd
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 import plotly.graph_objects as go
+import json
+import requests
 
 # === DATOS ASISTENTES ===
 df_asist = pd.read_excel("Asistentes.xlsx", engine="openpyxl")
@@ -38,27 +40,10 @@ fig_entidades.update_layout(
     margin=dict(l=80, r=40, t=50, b=50)
 )
 
-# === DATOS TALLER 1 ===
-df_t1 = pd.read_excel("Taller1.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
-df_t1.columns = df_t1.iloc[1]
-df_t1 = df_t1[2:]
-df_t1 = df_t1.rename(columns={"Texto": "Texto", "Bloque": "Bloque"})
-df_t1_valid = df_t1[["Texto", "Bloque"]].dropna()
-df_t1_counts = df_t1_valid.groupby("Bloque").size().reset_index(name="Recuento")
-
-# === DATOS TALLER 2 ===
-df2 = pd.read_excel("Taller2.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
-df2.columns = df2.iloc[1]
-df2 = df2[2:]
-df2 = df2.rename(columns={"Texto": "Texto", "Bloque": "Bloque", "categoria": "Categoria"})
-df_valid = df2[["Texto", "Bloque", "Categoria"]].dropna()
-df_exploded = df_valid.assign(Categoria=df_valid["Categoria"].str.split(";")).explode("Categoria")
-df_exploded["Categoria"] = df_exploded["Categoria"].str.strip()
-bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
 
 # Calcular el porcentaje de cada tipo de entidad
 porcentaje = (
-    df_asist["Ambito"]
+    df_asist["ambito"]
     .value_counts(normalize=True)
     .mul(100)
     .reset_index()
@@ -77,7 +62,70 @@ fig_tipo_entidad = px.pie(
 
 fig_tipo_entidad.update_traces(textinfo="percent+label")
 fig_tipo_entidad.update_layout(title_x=0.5)
-fig_tipo_entidad.show()
+#fig_tipo_entidad.show()
+
+# Calcular el número de asistentes por provincia
+provincia_counts = (
+    df_asist["Provincia"]
+    .value_counts()
+    .reset_index()
+    .rename(columns={"index": "Provincia", "Provincia": "Asistentes"})
+)
+
+# Gráfico circular
+fig_pie_provincia = px.pie(
+    provincia_counts,
+    names="Provincia",
+    values="Asistentes",
+    title="Distribución de asistentes por provincia",
+    hole=0.4
+)
+fig_pie_provincia.update_traces(textinfo="percent+label")
+fig_pie_provincia.update_layout(title_x=0.5)
+
+# Cargar GeoJSON de provincias españolas
+url = "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/spain-provinces.geojson"
+geojson_provincias = requests.get(url).json()
+
+# Normalizar nombres si es necesario (asegúrate que coincidan con los del GeoJSON)
+provincia_counts["Provincia"] = provincia_counts["Provincia"].replace({
+    "Santa Cruz de Tenerife": "Santa Cruz de Tenerife",
+    "Ávila": "Avila",  # Ejemplo de normalización
+    "Badajoz": "Badajoz"
+})
+
+# Mapa coroplético
+fig_mapa = px.choropleth(
+    provincia_counts,
+    geojson=geojson_provincias,
+    locations="Provincia",
+    featureidkey="properties.name",
+    color="Asistentes",
+    color_continuous_scale="Blues",
+    title="Número de asistentes por provincia"
+)
+
+fig_mapa.update_geos(fitbounds="locations", visible=False)
+fig_mapa.update_layout(title_x=0.5, margin={"r":0,"t":40,"l":0,"b":0})
+
+# === DATOS TALLER 1 ===
+df_t1 = pd.read_excel("Taller1.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
+df_t1.columns = df_t1.iloc[1]
+df_t1 = df_t1[2:]
+df_t1 = df_t1.rename(columns={"Texto": "Texto", "Bloque": "Bloque"})
+df_t1_valid = df_t1[["Texto", "Bloque"]].dropna()
+df_t1_counts = df_t1_valid.groupby("Bloque").size().reset_index(name="Recuento")
+
+# === DATOS TALLER 2 ===
+df2 = pd.read_excel("Taller2.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
+df2.columns = df2.iloc[1]
+df2 = df2[2:]
+df2 = df2.rename(columns={"Texto": "Texto", "Bloque": "Bloque", "categoria": "Categoria"})
+df_valid = df2[["Texto", "Bloque", "Categoria"]].dropna()
+df_exploded = df_valid.assign(Categoria=df_valid["Categoria"].str.split(";")).explode("Categoria")
+df_exploded["Categoria"] = df_exploded["Categoria"].str.strip()
+bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
+
 
 footer_img2 = html.Img(src="/assets/Aportes_taller1_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
 footer_img3 = html.Img(src="/assets/Aportes_taller2_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
@@ -91,26 +139,41 @@ app.layout = html.Div([
 
 
     
+       
     dcc.Tabs([
         dcc.Tab(label="Datos de Asistentes", children=[
             html.Div([
+                # Fila 1: Género, Provincia, Ámbito
                 html.Div([
-                    html.H3("Distribución por género", style={"textAlign": "center"}),
-                    dcc.Graph(figure=fig_dona)
-                ], style={"width": "32%", "display": "inline-block", "verticalAlign": "top"}),
-        
+                    html.Div([
+                        html.H3("Distribución por género", style={"textAlign": "center"}),
+                        dcc.Graph(figure=fig_dona)
+                    ], style={"width": "32%", "display": "inline-block", "verticalAlign": "top"}),
+    
+                    html.Div([
+                        html.H3("Provincia de procedencia", style={"textAlign": "center"}),
+                        dcc.Graph(figure=fig_pie_provincia)
+                    ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"}),
+    
+                    html.Div([
+                        html.H3("Ámbito institucional", style={"textAlign": "center"}),
+                        dcc.Graph(figure=fig_tipo_entidad)
+                    ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+                ], style={"width": "100%", "textAlign": "center", "marginTop": "20px"}),
+    
+                # Fila 2: Entidades, Mapa
                 html.Div([
-                    html.H3("Participantes por entidad", style={"textAlign": "center"}),
-                    dcc.Graph(figure=fig_entidades)
-                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"}),
-        
-                html.Div([
-                    html.H3("Tipo de entidad", style={"textAlign": "center"}),
-                    dcc.Graph(figure=fig_tipo_entidad)
-                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
-            ], style={"width": "100%", "textAlign": "center", "marginTop": "20px"}),
-        
-            
+                    html.Div([
+                        html.H3("Participantes por entidad", style={"textAlign": "center"}),
+                        dcc.Graph(figure=fig_entidades)
+                    ], style={"width": "48%", "display": "inline-block", "verticalAlign": "top"}),
+    
+                    html.Div([
+                        html.H3("Mapa de asistentes por provincia", style={"textAlign": "center"}),
+                        dcc.Graph(figure=fig_mapa)
+                    ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
+                ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
+            ])
         ]),
 
         dcc.Tab(label="TALLER 1 - Aportes por Bloque", children=[
