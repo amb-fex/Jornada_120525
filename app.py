@@ -56,20 +56,28 @@ df_exploded = df_valid.assign(Categoria=df_valid["Categoria"].str.split(";")).ex
 df_exploded["Categoria"] = df_exploded["Categoria"].str.strip()
 bloques_disponibles = sorted(df_exploded["Bloque"].dropna().unique())
 
-porcentaje = {
-    "Tipo": ["Pública", "Privada"],
-    "Porcentaje": [57.1, 42.9]
-}
+# Calcular el porcentaje de cada tipo de entidad
+porcentaje = (
+    df_asist["Ambito"]
+    .value_counts(normalize=True)
+    .mul(100)
+    .reset_index()
+    .rename(columns={"index": "Tipo", "Ambito": "Porcentaje"})
+)
+
+# Crear el gráfico de pastel
 fig_tipo_entidad = px.pie(
     porcentaje,
     names="Tipo",
     values="Porcentaje",
-    title="Tipo de entidad (Pública vs Privada)",
+    title="Tipo de entidad (Pública, Privada, Académica)",
     hole=0.4,
-    color_discrete_sequence=["#1f77b4", "#ff7f0e"]
+    color_discrete_sequence=["#1f77b4", "#ff7f0e", "#2ca02c"]  # Añadido color para 'Académica'
 )
+
 fig_tipo_entidad.update_traces(textinfo="percent+label")
 fig_tipo_entidad.update_layout(title_x=0.5)
+fig_tipo_entidad.show()
 
 footer_img2 = html.Img(src="/assets/Aportes_taller1_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
 footer_img3 = html.Img(src="/assets/Aportes_taller2_por_bloques.png", style={"width": "100%", "marginTop": "40px"})
