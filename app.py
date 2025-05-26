@@ -70,7 +70,7 @@ provincia_counts = (
     df_asist["Provincia"]
     .value_counts()
     .reset_index()
-    .rename(columns={"index": "Provincia", "Provincia": "Asistentes"})
+    .rename(columns={"index": "provincia", "provincia": "Asistentes"})
 )
 
 # Gráfico circular
@@ -89,7 +89,7 @@ url = "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/pub
 geojson_provincias = requests.get(url).json()
 
 # Normalizar nombres si es necesario (asegúrate que coincidan con los del GeoJSON)
-provincia_counts["Provincia"] = provincia_counts["Provincia"].replace({
+provincia_counts["provincia"] = provincia_counts["provincia"].replace({
     "Santa Cruz de Tenerife": "Santa Cruz de Tenerife",
     "Ávila": "Avila",  # Ejemplo de normalización
     "Badajoz": "Badajoz"
