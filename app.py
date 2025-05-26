@@ -67,7 +67,7 @@ fig_tipo_entidad.update_layout(title_x=0.5)
 
 # Calcular el número de asistentes por provincia
 provincia_counts = (
-    df_asist["Provincia"]
+    df_asist["provincia"]
     .value_counts()
     .reset_index()
     .rename(columns={"index": "provincia", "provincia": "Asistentes"})
@@ -76,7 +76,7 @@ provincia_counts = (
 # Gráfico circular
 fig_pie_provincia = px.pie(
     provincia_counts,
-    names="Provincia",
+    names="provincia",
     values="Asistentes",
     title="Distribución de asistentes por provincia",
     hole=0.4
@@ -116,6 +116,16 @@ df_t1 = df_t1[2:]
 df_t1 = df_t1.rename(columns={"Texto": "Texto", "Bloque": "Bloque"})
 df_t1_valid = df_t1[["Texto", "Bloque"]].dropna()
 df_t1_counts = df_t1_valid.groupby("Bloque").size().reset_index(name="Recuento")
+
+# Crear gráfico de torta para resumen de bloques (usando fig_t1_counts)
+fig_t1_pie = px.pie(
+    df_t1_counts,
+    names="Bloque",
+    values="Recuento",
+    title="Distribución de aportes por bloque (Taller 1)",
+    hole=0.4,
+    color_discrete_sequence=px.colors.qualitative.Pastel
+)
 
 # === DATOS TALLER 2 ===
 df2 = pd.read_excel("Taller2.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
@@ -176,21 +186,34 @@ app.layout = html.Div([
                 ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
             ])
         ]),
-
         dcc.Tab(label="TALLER 1 - Aportes por Bloque", children=[
             html.Div([
+                # Título y mini-imagen al lado
                 html.Div([
-                    html.H2("TALLER 1 Aportes por Bloque", style={"textAlign": "center"}),
-                    dcc.Graph(id="grafico-t1"),
-                    html.Div(id="comentarios-t1", style={"marginTop": "5px", "textAlign": "center"})
-                ], style={"width": "66%", "display": "inline-block", "verticalAlign": "top"}),
-    
+                    html.Div([
+                        html.Img(src="/assets/Aportes_taller1_por_bloques.png", style={"height": "60px", "marginRight": "20px"})
+                    ], style={"display": "inline-block", "verticalAlign": "middle"}),
+        
+                    html.H2("TALLER 1 Aportes por Bloque", style={
+                        "display": "inline-block",
+                        "verticalAlign": "middle",
+                        "marginBottom": "10px"
+                    })
+                ], style={"textAlign": "center", "marginTop": "20px"}),
+        
+                # Fila de gráficos
                 html.Div([
-                    footer_img2
-                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
-            ], style={"width": "100%", "marginTop": "20px"})
+                    html.Div([
+                        dcc.Graph(id="grafico-t1"),
+                        html.Div(id="comentarios-t1", style={"marginTop": "5px", "textAlign": "center"})
+                    ], style={"width": "66%", "display": "inline-block", "verticalAlign": "top"}),
+        
+                    html.Div([
+                        dcc.Graph(figure=fig_t1_pie)
+                    ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+                ], style={"width": "100%", "marginTop": "10px"})
+            ])
         ]),
-    
         dcc.Tab(label="TALLER 2 - Categorías por Bloque", children=[
             html.Div([
                 html.Div([
