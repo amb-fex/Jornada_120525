@@ -98,7 +98,7 @@ provincia_counts["provincia"] = (
 )
 
 paises_extra = pd.DataFrame({
-    "provincia": [, "Portugal", "France"],
+    "provincia": [ "Portugal", "France"],
     "Asistentes": [0, 0]
 })
 
