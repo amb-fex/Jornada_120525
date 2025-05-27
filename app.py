@@ -73,7 +73,7 @@ provincia_counts = (
     .value_counts()
     .reset_index()
     .rename(columns={"index": "provincia", "provincia": "count"})
-)
+    ))
 
 df.rename(columns={"count": "Asistentes"}, inplace=True)
 
