@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import json
 import requests
-import geopandas as gpd
+
 
 # === DATOS ASISTENTES ===
 df_asist = pd.read_excel("Asistentes.xlsx", engine="openpyxl")
@@ -86,53 +86,47 @@ fig_pie_provincia = px.pie(
 fig_pie_provincia.update_traces(textinfo="percent+label")
 fig_pie_provincia.update_layout(title_x=0.5)
 
-# Normalizar nombres de provincias para coincidir con el GeoJSON
-provincia_counts["provincia"] = (
-    provincia_counts["provincia"]
+# Contar asistentes por provincia
+df = (
+    df_asist["provincia"]
+    .value_counts()
+    .reset_index()
+    .rename(columns={"index": "provincia", "provincia": "Asistentes"})
+)
+
+# Normalizar nombres para que coincidan con el GeoJSON
+df["provincia"] = (
+    df["provincia"]
     .astype(str)
     .str.strip()
     .replace({
         "Valencia": "València/Valencia",
-        "Bavaria": "Alacant/Alicante",  
+        "Bavaria": "Alacant/Alicante",
         "Santa Cruz de Tenerife": "Santa Cruz De Tenerife"
     })
 )
 
-# Leer provincias españolas
-gdf_prov = gpd.read_file("https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/spain-provinces.geojson")
-gdf_prov = gdf_prov.rename(columns={"name": "provincia"})
-gdf_prov["provincia"] = gdf_prov["provincia"].str.strip()
+# Agregar filas para países con 0 asistentes
+paises_extra = pd.DataFrame({
+    "provincia": ["España", "Portugal", "Francia"],
+    "Asistentes": [0, 0, 0]
+})
 
-# Leer países europeos
-gdf_eu = gpd.read_file("https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson")
-gdf_eu = gdf_eu.rename(columns={"NAME": "provincia"})
-gdf_eu["provincia"] = gdf_eu["provincia"].str.strip()
+df = pd.concat([df, paises_extra], ignore_index=True)
 
-# Filtrar solo los países deseados
-gdf_eu = gdf_eu[gdf_eu["provincia"].isin(["Italy", "France", "Portugal"])]
+# 1. Cargar el GeoJSON unificado
+with open("provincias_y_paises.geojson", "r", encoding="utf-8") as f:
+    geojson_total = json.load(f)
 
-# Asignar valor 0 a países, mantener provincias
-gdf_eu["Asistentes"] = 0
-gdf_prov["Asistentes"] = gdf_prov["provincia"].map(
-    provincia_counts.set_index("provincia")["Asistentes"]
-).fillna(0).astype(int)
 
-# Unir ambos conjuntos
-gdf_total = pd.concat([gdf_prov, gdf_eu], ignore_index=True)
-
-# Crear el gráfico
 fig = px.choropleth(
-    gdf_total,
-    geojson=gdf_total.geometry,
-    locations=gdf_total.index,
+    df,  # asegúrate de que df tenga la columna 'provincia'
+    geojson=geojson_total,
+    locations="provincia",
+    featureidkey="properties.provincia",
     color="Asistentes",
-    hover_name="provincia",
-    color_continuous_scale=["#cce5ff", "#084594"],
-    title="Mapa unificado: provincias de España + países europeos"
-)
-
-fig.update_geos(fitbounds="locations", visible=False)
-fig.update_layout(title_x=0.5, margin={"r": 0, "t": 40, "l": 0, "b": 0})
+    #title="Mapa unificado: provincias españolas + países invitados"
+))
 
 
 
@@ -245,6 +239,7 @@ app.layout = html.Div([
             html.Div([
                 html.Div([
                     html.H2("TALLER 2 Aportes por Categoría y Bloque", style={"textAlign": "center"}),
+        
                     html.Div([
                         html.Label("Selecciona un bloque:"),
                         dcc.Dropdown(
@@ -253,17 +248,26 @@ app.layout = html.Div([
                             value=bloques_disponibles[0]
                         )
                     ], style={"width": "80%", "margin": "0 auto", "textAlign": "center"}),
-                    dcc.Graph(id="grafico"),
-                    html.Div(id="comentarios", style={"marginTop": "5px", "textAlign": "center"})
+        
+                    # Fila con dos gráficos: barra y torta
+                    html.Div([
+                        html.Div([
+                            dcc.Graph(id="grafico"),
+                            html.Div(id="comentarios", style={"marginTop": "5px", "textAlign": "center"})
+                        ], style={"width": "49%", "display": "inline-block", "verticalAlign": "top"}),
+        
+                        html.Div([
+                            dcc.Graph(id="grafico_t2_pie")
+                        ], style={"width": "49%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+                    ])
                 ], style={"width": "66%", "display": "inline-block", "verticalAlign": "top"}),
-    
+        
                 html.Div([
                     footer_img3
                 ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
             ], style={"width": "100%", "marginTop": "20px"})
-        ]),
+        ])
     ])
-])
 
 # === CALLBACK TALLER 1 ===
 @app.callback(
@@ -325,10 +329,10 @@ def mostrar_comentarios_t1(clickData):
 @app.callback(
     Output("grafico", "figure"),
     Output("comentarios", "children"),
+    Output("grafico_t2_pie", "figure"),
     Input("selector-bloque", "value"),
     Input("grafico", "clickData")
 )
-
 
 
 
@@ -347,11 +351,11 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
     tickvals = df_bloque_counts["Categoria"]
     ticktext = [dividir_en_renglones(cat) for cat in tickvals]
 
-    fig = px.bar(df_bloque_counts, x="Categoria", y="Recuento", 
+    fig_bar = px.bar(df_bloque_counts, x="Categoria", y="Recuento", 
                  title=f"Bloque: {bloque_seleccionado}", 
                  color_discrete_sequence=["#8B0000"])
 
-    fig.update_xaxes(
+    fig_bar.update_xaxes(
         tickmode='array',
         tickvals=tickvals,
         ticktext=ticktext
@@ -370,7 +374,12 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
     )
     
     fig.write_html(f"grafico_{bloque_seleccionado}.html")
-   
+       # Torta
+    fig_pie = px.pie(df_bloque_counts, names="Categoria", values="Recuento",
+                     hole=0.4,
+                     title="Distribución por categoría")
+    fig_pie.update_traces(textinfo="percent+label")
+
 
     comentarios_div = html.Div("Haz clic en una barra para ver los comentarios.")
     if clickData:
@@ -381,7 +390,7 @@ def actualizar_dashboard(bloque_seleccionado, clickData):
             html.Ul([html.Li(c) for c in comentarios])
         ])
 
-    return fig, comentarios_div
+    return fig_bar, comentarios_div, fig_pie
 
 # === RUN APP ===
 if __name__ == '__main__':
