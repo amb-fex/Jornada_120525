@@ -218,7 +218,7 @@ app.layout = html.Div([
                 # Título y mini-imagen al lado
                 html.Div([
                     html.Div([
-                        html.Img(src="/assets/Aportes_taller1_por_bloques.png", style={"height": "60px", "marginRight": "20px"})
+                        html.Img(src="/assets/Aportes_taller1_por_bloques.png", style={"height": "150px", "marginRight": "5px"})
                     ], style={"display": "inline-block", "verticalAlign": "middle"}),
         
                     html.H2("TALLER 1 Aportes por Bloque", style={
