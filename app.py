@@ -204,12 +204,12 @@ app.layout = html.Div([
                     html.Div([
                         html.H3("Participantes por entidad", style={"textAlign": "center"}),
                         dcc.Graph(figure=fig_entidades)
-                    ], style={"width": "48%", "display": "inline-block", "verticalAlign": "top"}),
+                    ], style={"width": "18%", "display": "inline-block", "verticalAlign": "top"}),
     
                     html.Div([
                         html.H3("Mapa de asistentes por provincia", style={"textAlign": "center"}),
                         dcc.Graph(figure=fig_unificado)
-                    ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
+                    ], style={"width": "78%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
                 ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
             ])
         ]),
