@@ -85,30 +85,56 @@ fig_pie_provincia = px.pie(
 fig_pie_provincia.update_traces(textinfo="percent+label")
 fig_pie_provincia.update_layout(title_x=0.5)
 
-# Cargar GeoJSON de provincias españolas
-url = "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/spain-provinces.geojson"
-geojson_provincias = requests.get(url).json()
-
-# Normalizar nombres si es necesario (asegúrate que coincidan con los del GeoJSON)
-provincia_counts["provincia"] = provincia_counts["provincia"].replace({
-    "Santa Cruz de Tenerife": "Santa Cruz de Tenerife",
-    "Ávila": "Avila",  # Ejemplo de normalización
-    "Badajoz": "Badajoz"
-})
-
-# Mapa coroplético
-fig_mapa = px.choropleth(
-    provincia_counts,
-    geojson=geojson_provincias,
-    locations="provincia",
-    featureidkey="properties.name",
-    color="Asistentes",
-    color_continuous_scale="Blues",
-    title="Número de asistentes por provincia"
+# Normalizar nombres de provincias para coincidir con el GeoJSON
+provincia_counts["provincia"] = (
+    provincia_counts["provincia"]
+    .astype(str)
+    .str.strip()
+    .replace({
+        "Valencia": "València/Valencia",
+        "Bavaria": "Alacant/Alicante",  
+        "Santa Cruz de Tenerife": "Santa Cruz De Tenerife"
+    })
 )
 
-fig_mapa.update_geos(fitbounds="locations", visible=False)
-fig_mapa.update_layout(title_x=0.5, margin={"r":0,"t":40,"l":0,"b":0})
+# Cargar GeoJSON de provincias españolas
+url_provincias= "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/spain-provinces.geojson"
+geojson_provincias = requests.get(url_provincias).json()
+
+# 1. Cargar GeoJSON de Europa
+url = "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson"
+geojson_europa = requests.get(url).json()
+
+# 2. Crear DataFrame con países clave
+df_paises = pd.DataFrame({
+    "pais": ["Spain", "Italy", "Portugal", "France"],
+    "asistentes": [
+        df_asist[df_asist["provincia"].isin(["Madrid", "Barcelona", "Valencia", "Santa Cruz de Tenerife", "Badajoz"])].shape[0],
+        1,
+        0,
+        0
+    ]
+})
+
+# 3. Crear mapa unificado
+fig_unificado = px.choropleth(
+    df_paises,
+    geojson=geojson_europa,
+    locations="pais",
+    featureidkey="properties.NAME",
+    color="asistentes",
+    color_continuous_scale=["#cce5ff", "#084594"],  # azul claro → azul oscuro
+    range_color=(0, df_paises["asistentes"].max()),
+    title="Mapa de asistentes por país"
+)
+
+fig_unificado.update_geos(fitbounds="locations", visible=False)
+fig_unificado.update_layout(
+    coloraxis_showscale=True,
+    title_x=0.5,
+    margin={"r": 0, "t": 40, "l": 0, "b": 0}
+)
+
 
 # === DATOS TALLER 1 ===
 df_t1 = pd.read_excel("Taller1.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
@@ -182,7 +208,7 @@ app.layout = html.Div([
     
                     html.Div([
                         html.H3("Mapa de asistentes por provincia", style={"textAlign": "center"}),
-                        dcc.Graph(figure=fig_mapa)
+                        dcc.Graph(figure=fig_unificado)
                     ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
                 ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
             ])
