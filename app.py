@@ -70,8 +70,8 @@ fig_tipo_entidad.update_layout(title_x=0.5)
 provincia_counts = (
     df_asist["provincia"]
     .value_counts()
-    .reset_index()
-    .rename(columns={"index": "provincia", "provincia": "Asistentes"})
+    .reset_index(name="Asistentes")
+    .rename(columns={"index": "provincia"})
 )
 
 # Gráfico circular
