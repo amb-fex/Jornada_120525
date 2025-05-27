@@ -68,11 +68,14 @@ fig_tipo_entidad.update_layout(title_x=0.5)
 
 # Calcular el número de asistentes por provincia
 provincia_counts = (
+    df = (
     df_asist["provincia"]
     .value_counts()
-    .reset_index(name="Asistentes")
-    .rename(columns={"index": "provincia"})
+    .reset_index()
+    .rename(columns={"index": "provincia", "provincia": "count"})
 )
+
+df.rename(columns={"count": "Asistentes"}, inplace=True)
 
 
 # Gráfico circular
@@ -86,13 +89,6 @@ fig_pie_provincia = px.pie(
 fig_pie_provincia.update_traces(textinfo="percent+label")
 fig_pie_provincia.update_layout(title_x=0.5)
 
-# Contar asistentes por provincia
-df = (
-    df_asist["provincia"]
-    .value_counts()
-    .reset_index()
-    .rename(columns={"index": "provincia", "provincia": "Asistentes"})
-)
 
 # Normalizar nombres para que coincidan con el GeoJSON
 df["provincia"] = (
