@@ -126,7 +126,7 @@ fig = px.choropleth(
     featureidkey="properties.provincia",
     color="Asistentes",
     #title="Mapa unificado: provincias españolas + países invitados"
-))
+)
 
 
 
