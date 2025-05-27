@@ -67,7 +67,25 @@ fig_tipo_entidad.update_layout(title_x=0.5)
 #fig_tipo_entidad.show()
 
 # Calcular el número de asistentes por provincia
-# Normalizar nombres para que coincidan con el GeoJSON
+# Calcular el número de asistentes por provincia
+provincia_counts = (
+    df_asist["provincia"]
+    .value_counts()
+    .reset_index()
+    .rename(columns={"index": "provincia", "provincia": "Asistentes"})
+)
+
+# Gráfico circular
+fig_pie_provincia = px.pie(
+    provincia_counts,
+    names="provincia",
+    values="Asistentes",
+    hole=0.4
+)
+fig_pie_provincia.update_traces(textinfo="percent+label")
+fig_pie_provincia.update_layout(title_x=0.5)
+
+# Prepara para el choropleth
 provincia_counts["provincia"] = (
     provincia_counts["provincia"]
     .astype(str)
@@ -79,7 +97,6 @@ provincia_counts["provincia"] = (
     })
 )
 
-# Agregar filas para países con 0 asistentes
 paises_extra = pd.DataFrame({
     "provincia": ["Spain", "Portugal", "France"],
     "Asistentes": [0, 0, 0]
@@ -87,27 +104,6 @@ paises_extra = pd.DataFrame({
 
 df = pd.concat([provincia_counts, paises_extra], ignore_index=True)
 
-
-
-# Gráfico circular
-fig_pie_provincia = px.pie(
-    provincia_counts,
-    names="provincia",
-    values="Asistentes",
-    #title="Distribución de asistentes por provincia",
-    hole=0.4
-)
-fig_pie_provincia.update_traces(textinfo="percent+label")
-fig_pie_provincia.update_layout(title_x=0.5)
-
-
-# Agregar filas para países con 0 asistentes
-paises_extra = pd.DataFrame({
-    "provincia": ["Spain", "Portugal", "France"],
-    "Asistentes": [0, 0, 0]
-})
-
-df = pd.concat([provincia_counts, paises_extra], ignore_index=True)
 
 
 # 1. Cargar el GeoJSON unificado
