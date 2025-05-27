@@ -67,12 +67,26 @@ fig_tipo_entidad.update_layout(title_x=0.5)
 #fig_tipo_entidad.show()
 
 # Calcular el número de asistentes por provincia
-provincia_counts = (
-    df_asist["provincia"]
-    .value_counts()
-    .reset_index()
-    .rename(columns={"index": "provincia", "provincia": "Asistentes"})
+# Normalizar nombres para que coincidan con el GeoJSON
+provincia_counts["provincia"] = (
+    provincia_counts["provincia"]
+    .astype(str)
+    .str.strip()
+    .replace({
+        "Valencia": "València/Valencia",
+        "Bavaria": "Alacant/Alicante",
+        "Santa Cruz de Tenerife": "Santa Cruz De Tenerife"
+    })
 )
+
+# Agregar filas para países con 0 asistentes
+paises_extra = pd.DataFrame({
+    "provincia": ["Spain", "Portugal", "France"],
+    "Asistentes": [0, 0, 0]
+})
+
+df = pd.concat([provincia_counts, paises_extra], ignore_index=True)
+
 
 
 # Gráfico circular
@@ -87,25 +101,14 @@ fig_pie_provincia.update_traces(textinfo="percent+label")
 fig_pie_provincia.update_layout(title_x=0.5)
 
 
-# Normalizar nombres para que coincidan con el GeoJSON
-df["provincia"] = (
-    df["provincia"]
-    .astype(str)
-    .str.strip()
-    .replace({
-        "Valencia": "València/Valencia",
-        "Bavaria": "Alacant/Alicante",
-        "Santa Cruz de Tenerife": "Santa Cruz De Tenerife"
-    })
-)
-
 # Agregar filas para países con 0 asistentes
 paises_extra = pd.DataFrame({
-    "provincia": ["España", "Portugal", "Francia"],
+    "provincia": ["Spain", "Portugal", "France"],
     "Asistentes": [0, 0, 0]
 })
 
-df = pd.concat([df, paises_extra], ignore_index=True)
+df = pd.concat([provincia_counts, paises_extra], ignore_index=True)
+
 
 # 1. Cargar el GeoJSON unificado
 with open("provincias_y_paises.geojson", "r", encoding="utf-8") as f:
