@@ -268,7 +268,7 @@ app.layout = html.Div([
             ], style={"width": "100%", "marginTop": "20px"})
         ])
     ])
-
+ ])
 # === CALLBACK TALLER 1 ===
 @app.callback(
     Output("grafico-t1", "figure"),
