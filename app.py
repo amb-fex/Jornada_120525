@@ -114,7 +114,7 @@ fig = px.choropleth(
     df,  # asegúrate de que df tenga la columna 'provincia'
     geojson=geojson_total,
     locations="provincia",
-    featureidkey="properties.provincia",
+    featureidkey="properties.name",
     color="Asistentes",
     #title="Mapa unificado: provincias españolas + países invitados"
 )
@@ -245,17 +245,17 @@ app.layout = html.Div([
                         html.Div([
                             dcc.Graph(id="grafico"),
                             html.Div(id="comentarios", style={"marginTop": "5px", "textAlign": "center"})
-                        ], style={"width": "49%", "display": "inline-block", "verticalAlign": "top"}),
+                        ], style={"width": "59%", "display": "inline-block", "verticalAlign": "top"}),
         
                         html.Div([
                             dcc.Graph(id="grafico_t2_pie")
-                        ], style={"width": "49%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+                        ], style={"width": "39%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
                     ])
-                ], style={"width": "66%", "display": "inline-block", "verticalAlign": "top"}),
+                ], style={"width": "80%", "display": "inline-block", "verticalAlign": "top"}),
         
                 html.Div([
                     footer_img3
-                ], style={"width": "32%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+                ], style={"width": "15%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
             ], style={"width": "100%", "marginTop": "20px"})
         ])
     ])
