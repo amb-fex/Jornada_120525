@@ -97,12 +97,12 @@ provincia_counts["provincia"] = (
     })
 )
 
-paises_extra = pd.DataFrame({
-    "provincia": [ "Portugal", "France"],
-    "Asistentes": [0, 0]
-})
+#paises_extra = pd.DataFrame({
+   # "provincia": [ "Portugal", "France"],
+   # "Asistentes": [0, 0]
+#})
 
-df = pd.concat([provincia_counts, paises_extra], ignore_index=True)
+#df = pd.concat([provincia_counts, paises_extra], ignore_index=True)
 
 
 
@@ -196,7 +196,7 @@ app.layout = html.Div([
     
                     html.Div([
                         html.H3("Mapa de asistentes por provincia", style={"textAlign": "center"}),
-                        dcc.Graph(figure=fig)
+                        dcc.Graph(figure=fig, style={"height": "600px"})
                     ], style={"width": "78%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
                 ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
             ])
