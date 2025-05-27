@@ -92,13 +92,14 @@ provincia_counts["provincia"] = (
     .replace({
         "Valencia": "València/Valencia",
         "Bavaria": "Alacant/Alicante",
+        "Italia": "Italy",
         "Santa Cruz de Tenerife": "Santa Cruz De Tenerife"
     })
 )
 
 paises_extra = pd.DataFrame({
-    "provincia": ["Spain", "Portugal", "France"],
-    "Asistentes": [0, 0, 0]
+    "provincia": [, "Portugal", "France"],
+    "Asistentes": [0, 0]
 })
 
 df = pd.concat([provincia_counts, paises_extra], ignore_index=True)
@@ -117,6 +118,8 @@ fig = px.choropleth(
     featureidkey="properties.name",
     color="Asistentes",
     #title="Mapa unificado: provincias españolas + países invitados"
+    color_continuous_scale=[[0, 'white'], [1, 'darkblue']],
+    range_color=(0, 12)
 )
 
 
@@ -245,11 +248,11 @@ app.layout = html.Div([
                         html.Div([
                             dcc.Graph(id="grafico"),
                             html.Div(id="comentarios", style={"marginTop": "5px", "textAlign": "center"})
-                        ], style={"width": "59%", "display": "inline-block", "verticalAlign": "top"}),
+                        ], style={"width": "48%", "display": "inline-block", "verticalAlign": "top"}),
         
                         html.Div([
                             dcc.Graph(id="grafico_t2_pie")
-                        ], style={"width": "39%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
+                        ], style={"width": "49%", "display": "inline-block", "marginLeft": "2%", "verticalAlign": "top"})
                     ])
                 ], style={"width": "80%", "display": "inline-block", "verticalAlign": "top"}),
         
