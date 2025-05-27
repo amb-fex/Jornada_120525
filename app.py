@@ -68,14 +68,11 @@ fig_tipo_entidad.update_layout(title_x=0.5)
 
 # Calcular el número de asistentes por provincia
 provincia_counts = (
-    df = (
     df_asist["provincia"]
     .value_counts()
     .reset_index()
-    .rename(columns={"index": "provincia", "provincia": "count"})
-    ))
-
-df.rename(columns={"count": "Asistentes"}, inplace=True)
+    .rename(columns={"index": "provincia", "provincia": "Asistentes"})
+)
 
 
 # Gráfico circular
