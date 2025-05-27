@@ -112,7 +112,7 @@ with open("provincias_y_paises.geojson", "r", encoding="utf-8") as f:
 
 
 fig = px.choropleth(
-    df,  # asegúrate de que df tenga la columna 'provincia'
+    provincia_counts,  # asegúrate de que df tenga la columna 'provincia'
     geojson=geojson_total,
     locations="provincia",
     featureidkey="properties.name",
