@@ -4,6 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import json
 import requests
+import geopandas as gpd
 
 # === DATOS ASISTENTES ===
 df_asist = pd.read_excel("Asistentes.xlsx", engine="openpyxl")
@@ -97,43 +98,42 @@ provincia_counts["provincia"] = (
     })
 )
 
-# Cargar GeoJSON de provincias españolas
-url_provincias= "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/spain-provinces.geojson"
-geojson_provincias = requests.get(url_provincias).json()
+# Leer provincias españolas
+gdf_prov = gpd.read_file("https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/spain-provinces.geojson")
+gdf_prov = gdf_prov.rename(columns={"name": "provincia"})
+gdf_prov["provincia"] = gdf_prov["provincia"].str.strip()
 
-# 1. Cargar GeoJSON de Europa
-url = "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson"
-geojson_europa = requests.get(url).json()
+# Leer países europeos
+gdf_eu = gpd.read_file("https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson")
+gdf_eu = gdf_eu.rename(columns={"NAME": "provincia"})
+gdf_eu["provincia"] = gdf_eu["provincia"].str.strip()
 
-# 2. Crear DataFrame con países clave
-df_paises = pd.DataFrame({
-    "pais": ["Spain", "Italy", "Portugal", "France"],
-    "asistentes": [
-        df_asist[df_asist["provincia"].isin(["Madrid", "Barcelona", "Valencia", "Santa Cruz de Tenerife", "Badajoz"])].shape[0],
-        1,
-        0,
-        0
-    ]
-})
+# Filtrar solo los países deseados
+gdf_eu = gdf_eu[gdf_eu["provincia"].isin(["Italy", "France", "Portugal"])]
 
-# 3. Crear mapa unificado
-fig_unificado = px.choropleth(
-    df_paises,
-    geojson=geojson_europa,
-    locations="pais",
-    featureidkey="properties.NAME",
-    color="asistentes",
-    color_continuous_scale=["#cce5ff", "#084594"],  # azul claro → azul oscuro
-    range_color=(0, df_paises["asistentes"].max()),
-    title="Mapa de asistentes por país"
+# Asignar valor 0 a países, mantener provincias
+gdf_eu["Asistentes"] = 0
+gdf_prov["Asistentes"] = gdf_prov["provincia"].map(
+    provincia_counts.set_index("provincia")["Asistentes"]
+).fillna(0).astype(int)
+
+# Unir ambos conjuntos
+gdf_total = pd.concat([gdf_prov, gdf_eu], ignore_index=True)
+
+# Crear el gráfico
+fig = px.choropleth(
+    gdf_total,
+    geojson=gdf_total.geometry,
+    locations=gdf_total.index,
+    color="Asistentes",
+    hover_name="provincia",
+    color_continuous_scale=["#cce5ff", "#084594"],
+    title="Mapa unificado: provincias de España + países europeos"
 )
 
-fig_unificado.update_geos(fitbounds="locations", visible=False)
-fig_unificado.update_layout(
-    coloraxis_showscale=True,
-    title_x=0.5,
-    margin={"r": 0, "t": 40, "l": 0, "b": 0}
-)
+fig.update_geos(fitbounds="locations", visible=False)
+fig.update_layout(title_x=0.5, margin={"r": 0, "t": 40, "l": 0, "b": 0})
+
 
 
 # === DATOS TALLER 1 ===
@@ -208,7 +208,7 @@ app.layout = html.Div([
     
                     html.Div([
                         html.H3("Mapa de asistentes por provincia", style={"textAlign": "center"}),
-                        dcc.Graph(figure=fig_unificado)
+                        dcc.Graph(figure=fig)
                     ], style={"width": "78%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
                 ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
             ])
