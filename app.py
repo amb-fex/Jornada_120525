@@ -56,7 +56,7 @@ fig_tipo_entidad = px.pie(
     porcentaje,
     names="ambito",
     values="porcentaje",
-    title="Tipo de entidad (Pública, Privada, Académica)",
+    #title="Tipo de entidad (Pública, Privada, Académica)",
     hole=0.4,
     color_discrete_sequence=["#1f77b4", "#ff7f0e", "#2ca02c"]  # Añadido color para 'Académica'
 )
@@ -79,7 +79,7 @@ fig_pie_provincia = px.pie(
     provincia_counts,
     names="provincia",
     values="Asistentes",
-    title="Distribución de asistentes por provincia",
+    #title="Distribución de asistentes por provincia",
     hole=0.4
 )
 fig_pie_provincia.update_traces(textinfo="percent+label")
