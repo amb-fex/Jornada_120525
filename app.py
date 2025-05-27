@@ -67,7 +67,6 @@ fig_tipo_entidad.update_layout(title_x=0.5)
 #fig_tipo_entidad.show()
 
 # Calcular el número de asistentes por provincia
-# Calcular el número de asistentes por provincia
 provincia_counts = (
     df_asist["provincia"]
     .value_counts()
