@@ -121,7 +121,16 @@ fig = px.choropleth(
     color_continuous_scale=[[0, 'white'], [1, 'darkblue']],
     range_color=(0, 12)
 )
+# Centrar en España
+fig.update_geos(
+    center={"lat": 40.0, "lon": -3.5},  
+    projection_scale=6,  
+    visible=False
+)
 
+fig.update_layout(
+    margin={"r":0,"t":0,"l":0,"b":0}
+)
 
 
 # === DATOS TALLER 1 ===
@@ -196,7 +205,7 @@ app.layout = html.Div([
     
                     html.Div([
                         html.H3("Mapa de asistentes por provincia", style={"textAlign": "center"}),
-                        dcc.Graph(figure=fig, style={"height": "1200px"})
+                        dcc.Graph(figure=fig, style={"height": "1200px, "width": "100%"})
                     ], style={"width": "78%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
                 ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
             ])
