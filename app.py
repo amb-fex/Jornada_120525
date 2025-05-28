@@ -205,7 +205,7 @@ app.layout = html.Div([
     
                     html.Div([
                         html.H3("Mapa de asistentes por provincia", style={"textAlign": "center"}),
-                        dcc.Graph(figure=fig, style={"height": "1200px, "width": "100%"})
+                        dcc.Graph(figure=fig, style={"height": "1200px", "width": "100%"})
                     ], style={"width": "78%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
                 ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
             ])
