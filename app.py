@@ -133,11 +133,16 @@ fig.update_geos(
 )
 
 fig.update_layout(
-    geo=dict(domain=dict(x=[0, 1], y=[0, 1])),
+    geo=dict(
+        domain=dict(x=[0, 1], y=[0, 1]),
+        fitbounds="locations",
+        projection=dict(type="mercator"),
+        lataxis_range=[34, 44],  # control más estricto del área
+        lonaxis_range=[-10, 5]
+    ),
     margin={"r":0,"t":0,"l":0,"b":0},
     height=800
 )
-
 
 # === DATOS TALLER 1 ===
 df_t1 = pd.read_excel("Taller1.xlsx", sheet_name="Taller 1. C", engine="openpyxl")
@@ -211,7 +216,11 @@ app.layout = html.Div([
     
                     html.Div([
                         html.H3("Mapa de asistentes por provincia", style={"textAlign": "center"}),
-                        dcc.Graph(figure=fig, style={"height": "1200px", "width": "100%"})
+                        dcc.Graph(
+                            figure=fig,
+                            config={"responsive": True},
+                            style={"height": "1000px", "width": "100%", "margin": "0 auto"}
+                        )
                     ], style={"width": "78%", "display": "inline-block", "marginLeft": "4%", "verticalAlign": "top"})
                 ], style={"width": "100%", "textAlign": "center", "marginTop": "40px"})
             ])
