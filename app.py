@@ -135,7 +135,7 @@ fig.update_geos(
 fig.update_layout(
     geo=dict(domain=dict(x=[0, 1], y=[0, 1])),
     margin={"r":0,"t":0,"l":0,"b":0},
-    height=600
+    height=800
 )
 
 
