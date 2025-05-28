@@ -124,7 +124,7 @@ fig = px.choropleth(
 # Centrar en España
 fig.update_geos(
     center={"lat": 40.0, "lon": -3.5},  
-    projection_scale=6,  
+    projection_scale=20,  
     visible=False
 )
 
